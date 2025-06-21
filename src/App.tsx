@@ -238,7 +238,6 @@ export const App: React.FC = () => {
                   onChange={() => handleToggleCompleted(todo.id)}
                   disabled={loadingAction === `toggle-${todo.id}`}
                 />
-                <span className="visually-hidden">Toggle {todo.title}</span>
               </label>
 
               {editingId === todo.id ? (
@@ -293,7 +292,6 @@ export const App: React.FC = () => {
                 />
                 <span className="visually-hidden">Loading todo</span>
               </label>
-              <span className="todo__title">{tempTodo.title}</span>
               <div className="modal overlay is-active">
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
