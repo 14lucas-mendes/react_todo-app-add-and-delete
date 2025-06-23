@@ -280,18 +280,9 @@ export const App: React.FC = () => {
 
           {tempTodo && (
             <div data-cy="Todo" className="todo">
-              <label
-                className="todo__status-label"
-                htmlFor="temp-todo-checkbox"
-              >
-                <input
-                  id="temp-todo-checkbox"
-                  type="checkbox"
-                  className="todo__status"
-                  disabled
-                />
-                <span className="visually-hidden">Loading todo</span>
-              </label>
+              <div className="todo__title">
+                {tempTodo.title}
+              </div>
               <div className="modal overlay is-active">
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
