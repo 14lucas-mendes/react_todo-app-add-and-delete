@@ -337,6 +337,7 @@ export const App: React.FC = () => {
         <div
           className="notification is-danger is-light has-text-weight-normal"
           role="alert"
+          data-cy="ErrorNotification"
         >
           <button
             type="button"
