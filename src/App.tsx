@@ -107,10 +107,8 @@ export const App: React.FC = () => {
       return;
     }
 
-    const updated = {...todo, completed: !todo.completed};
-
-    client.patch<Todo>(`/todos/${id}`, updated)
-      .then(() => {
+    client.patch<Todo>(`/todos/${id}`, { completed: !todo.completed })
+      .then((updated) => {
         setTodos(prev => prev.map(t =>
           t.id === id ? updated : t
         ));
@@ -300,32 +298,32 @@ export const App: React.FC = () => {
 
             <div className="filters">
               <button
-                className={filter === 'all' ? 'selected' : ''}
+                className={`filter__link${filter === 'all' ? ' selected' : ''}`}
                 onClick={() => setFilter('all')}
               >
-                Todos
+                All
               </button>
               <button
-                className={filter === 'active' ? 'selected' : ''}
+                className={`filter__link${filter === 'completed' ? ' selected' : ''}`}
                 onClick={() => setFilter('active')}
               >
-                Ativos
+                Active
               </button>
               <button
                 className={filter === 'completed' ? 'selected' : ''}
                 onClick={() => setFilter('completed')}
               >
-                Completos
+                Completed
               </button>
             </div>
 
             {hasCompleted && (
               <button
-                className="clear-completed"
+                className="todoapp__clear-completed"
                 onClick={clearCompleted}
                 disabled={loading === 'limpando'}
               >
-                Limpar completos
+                Clear completed
               </button>
             )}
           </footer>
