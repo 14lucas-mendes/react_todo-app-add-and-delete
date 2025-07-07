@@ -25,18 +25,7 @@
   }
 
   &__status {
-    /* Esconde apenas o input visualmente, mas mantém acessível para screen readers */
-    input[type='checkbox'] {
-      opacity: 0;
-      width: 40px;
-      height: 40px;
-      margin: 0;
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 2;
-      cursor: pointer;
-    }
+    opacity: 0;
   }
 
   &__title {

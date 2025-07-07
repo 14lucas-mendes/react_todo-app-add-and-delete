@@ -28,6 +28,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const inputRef = useRef<HTMLInputElement>(null);
+  // Estado para ids de todos sendo deletados
+  const [deletingIds, setDeletingIds] = useState<number[]>([]);
 
   // Busca os todos quando o componente carrega
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -88,6 +90,7 @@ export const App: React.FC = () => {
 
   // Função para deletar todo
   const deleteTodo = (id: number) => {
+    setDeletingIds(prev => [...prev, id]);
     setLoading(`deletando-${id}`);
 
     client.delete(`/todos/${id}`)
@@ -95,7 +98,10 @@ export const App: React.FC = () => {
         setTodos(prev => prev.filter(todo => todo.id !== id));
       })
       .catch(() => setError('Erro ao deletar tarefa'))
-      .finally(() => setLoading(null));
+      .finally(() => {
+        setLoading(null);
+        setDeletingIds(prev => prev.filter(delId => delId !== id));
+      });
   };
 
   // Função para marcar/desmarcar como completo
@@ -203,37 +209,52 @@ export const App: React.FC = () => {
             className={`todoapp__toggle-all ${activeCount === 0 ? 'active' : ''}`}
             onClick={toggleAll}
             disabled={loading === 'completando-todos'}
+            data-cy="ToggleAllButton"
             aria-label="Completar todos"
           />
 
-          <form onSubmit={addTodo}>
+          <form style={{ position: 'relative' }} onSubmit={addTodo}>
             <input
               ref={inputRef}
               type="text"
+              data-cy="NewTodoField"
               className="todoapp__new-todo"
               placeholder="O que precisa ser feito?"
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               disabled={!!loading}
             />
+            {/* Overlay de loading sobre o input ao adicionar */}
+            {tempTodo && (
+              <div className="loading-overlay">
+                <div className="loading-spinner" />
+              </div>
+            )}
           </form>
         </header>
 
         {/* Lista de todos */}
-        <section className="todoapp__main">
+        <section
+          className="todoapp__main"
+          data-cy="TodoList"
+        >
           {filteredTodos.map(todo => (
             <div
               key={todo.id}
+              data-cy="Todo"
               className={`todo ${todo.completed ? 'completed' : ''}`}
+              style={{ position: 'relative' }}
             >
-              <div className="todo__status">
+              <label className="todo__status-label">
                 <input
+                  className="todo__status"
                   type="checkbox"
+                  data-cy="TodoStatus"
                   checked={todo.completed}
                   onChange={() => toggleComplete(todo.id)}
-                  disabled={loading === `completando-${todo.id}`}
+                  disabled={loading === `completando-${todo.id}` || deletingIds.includes(todo.id)}
                 />
-              </div>
+              </label>
 
               {editing.id === todo.id ? (
                 <form onSubmit={(e) => {
@@ -256,6 +277,7 @@ export const App: React.FC = () => {
               ) : (
                 <span
                   className="todo__title"
+                  data-cy="TodoTitle"
                   onDoubleClick={() =>
                     setEditing({
                       id: todo.id,
@@ -269,17 +291,25 @@ export const App: React.FC = () => {
 
               <button
                 className="todo__remove"
+                data-cy="TodoDelete"
                 onClick={() => deleteTodo(todo.id)}
-                disabled={loading === `deletando-${todo.id}`}
+                disabled={loading === `deletando-${todo.id}` || deletingIds.includes(todo.id)}
               >
                 ×
               </button>
+
+              {/* Overlay de loading para deleção */}
+              {deletingIds.includes(todo.id) && (
+                <div className="loading-overlay">
+                  <div className="loading-spinner" />
+                </div>
+              )}
             </div>
           ))}
 
           {/* Todo temporário durante carregamento */}
           {tempTodo && (
-            <div className="todo">
+            <div className="todo" style={{ position: 'relative' }}>
               <div className="todo__status">
                 <input type="checkbox" checked={false} disabled />
               </div>
@@ -293,23 +323,35 @@ export const App: React.FC = () => {
 
         {/* Rodapé com filtros */}
         {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span>{activeCount} itens restantes</span>
+          <footer
+            className="todoapp__footer"
+            data-cy="Footer"
+          >
+            <span
+              className="todo-count"
+              data-cy="TodosCounter"
+            >{activeCount} itens restantes</span>
 
-            <div className="filters">
+            <div
+              className="filters"
+              data-cy="Filter"
+            >
               <button
+                data-cy="FilterLinkAll"
                 className={`filter__link${filter === 'all' ? ' selected' : ''}`}
                 onClick={() => setFilter('all')}
               >
                 All
               </button>
               <button
+                data-cy="FilterLinkActive"
                 className={`filter__link${filter === 'completed' ? ' selected' : ''}`}
                 onClick={() => setFilter('active')}
               >
                 Active
               </button>
               <button
+                data-cy="FilterLinkCompleted"
                 className={filter === 'completed' ? 'selected' : ''}
                 onClick={() => setFilter('completed')}
               >
@@ -319,6 +361,7 @@ export const App: React.FC = () => {
 
             {hasCompleted && (
               <button
+                data-cy="ClearCompletedButton"
                 className="todoapp__clear-completed"
                 onClick={clearCompleted}
                 disabled={loading === 'limpando'}
@@ -332,7 +375,10 @@ export const App: React.FC = () => {
 
       {/* Mensagem de erro */}
       {error && (
-        <div className="error-message">
+        <div
+          className="error-message"
+          data-cy="ErrorNotification"
+        >
           <span>{error}</span>
           <button onClick={() => setError('')}>×</button>
         </div>
